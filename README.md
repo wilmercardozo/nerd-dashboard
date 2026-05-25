@@ -4,7 +4,7 @@ Dashboard de escritorio sobre una placa **Cheap Yellow Display (ESP32-2432S028R)
 + un **agente en tu PC**. Monitorea servicios (estilo uptime-kuma), tu uso de
 Claude, las métricas de tu PC, y gestiona tareas con Pomodoro.
 
-![hardware](https://img.shields.io/badge/board-ESP32--2432S028R%20(CYD)-orange) ![lvgl](https://img.shields.io/badge/UI-LVGL%209.2-blue) ![agent](https://img.shields.io/badge/agent-Python%203.10%2B-green)
+**Hardware:** ESP32-2432S028R (CYD) · **UI:** LVGL 9.2 · **Agente:** Python 3.10+
 
 ---
 
