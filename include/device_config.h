@@ -27,6 +27,7 @@ struct Config {
 
     // ── Seguridad opcional ───────────────────────────────────────────
     char     api_token[33]      = "";    // si no vacio, exige header X-Token en endpoints sensibles
+    char     ota_pass[33]       = "";    // si no vacio, /update exige Basic Auth (user "admin")
 
     bool     valid              = false; // true tras cargar/guardar OK
 };

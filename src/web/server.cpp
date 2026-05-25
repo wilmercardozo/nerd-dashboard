@@ -38,11 +38,19 @@ button{width:100%;margin-top:12px;background:#4fd1c5;color:#012;border:0;border-
 <p class="mut">Reabre el portal de configuración (red <code>NerdDashboard-Setup</code>) para cambiar de red.</p>
 <button onclick="wifiReset()" style="background:#243044;color:#ff5d6c">Reconfigurar WiFi</button>
 <p id="wmsg" class="mut"></p>
-<hr><p><a href="/update">Actualizar firmware (OTA) &rarr;</a></p>
+<hr>
+<h3>Firmware (OTA)</h3>
+<p class="mut">Clave para proteger <code>/update</code> (Basic Auth, usuario <code>admin</code>). Vacío = abierto.</p>
+<input id="otapass" type="password" placeholder="(sin clave)">
+<button onclick="saveOta()">Guardar clave OTA</button>
+<p id="omsg" class="mut"></p>
+<p><a href="/update">Actualizar firmware (OTA) &rarr;</a></p>
 <script>
 const $=i=>document.getElementById(i);
 function upd(){$('link').href='http://'+$('host').value+':'+$('port').value+'/';}
-async function load(){try{const s=await(await fetch('/api/status')).json();$('host').value=s.pc_agent_host||'';$('port').value=s.pc_agent_port||8765;upd();}catch(e){}}
+async function load(){try{const s=await(await fetch('/api/status')).json();$('host').value=s.pc_agent_host||'';$('port').value=s.pc_agent_port||8765;if(s.ota_secured)$('otapass').placeholder='(configurada — escribe para cambiar)';upd();}catch(e){}}
+async function saveOta(){try{const r=await(await fetch('/api/config/pc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ota_pass:$('otapass').value})})).json();
+ $('omsg').textContent=r.ok?'Clave OTA guardada':'Error';$('otapass').value='';}catch(e){$('omsg').textContent='Error';}}
 async function save(){const b={agent_host:$('host').value.trim(),agent_port:+$('port').value||8765};
  if($('token').value.trim())b.api_token=$('token').value.trim();
  try{const r=await(await fetch('/api/config/pc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)})).json();
@@ -62,7 +70,7 @@ void begin(Config& cfg) {
         Serial.printf("[web] mDNS: http://%s.local\n", cfg.device_name);
     }
 
-    Ota::registerRoutes(s_server);
+    Ota::registerRoutes(s_server, cfg);
 
     s_server.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
         req->send(200, "text/html", LANDING);
@@ -80,6 +88,7 @@ void begin(Config& cfg) {
         if (s_cfg) {
             doc["pc_agent_host"] = s_cfg->pc_agent_host;
             doc["pc_agent_port"] = s_cfg->pc_agent_port;
+            doc["ota_secured"]   = s_cfg->ota_pass[0] != '\0';
         }
         String out; serializeJson(doc, out);
         req->send(200, "application/json", out);
@@ -100,6 +109,8 @@ void begin(Config& cfg) {
                 s_cfg->pc_agent_port = (uint16_t)doc["agent_port"].as<int>();
             if (doc["api_token"].is<const char*>())
                 strlcpy(s_cfg->api_token, doc["api_token"] | "", sizeof(s_cfg->api_token));
+            if (doc["ota_pass"].is<const char*>())
+                strlcpy(s_cfg->ota_pass, doc["ota_pass"] | "", sizeof(s_cfg->ota_pass));
             ConfigStore::save(*s_cfg);
             Serial.printf("[web] agente PC: %s:%u\n", s_cfg->pc_agent_host, s_cfg->pc_agent_port);
             JsonDocument r;

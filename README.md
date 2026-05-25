@@ -145,6 +145,9 @@ Keychain en macOS) y consulta los headers `anthropic-ratelimit-unified-*` →
 ## Seguridad
 
 - Por defecto el agente escucha en la LAN **sin autenticación** (red local).
+- **OTA protegido (opcional):** en la landing del ESP (`http://nerddashboard.local`)
+  → *Firmware (OTA)* → fija una clave. Entonces `/update` exige **Basic Auth**
+  (usuario `admin`, esa clave). Vacío = abierto (para recuperar el dispositivo).
 - **Token opcional:** crea `~/.nerddashboard/token.txt` (o env `NERD_TOKEN`) y
   reinicia el agente → toda la API exige header `X-Token`. Pon el mismo token en
   la landing del ESP. El navegador del dashboard lo recibe embebido.

@@ -37,6 +37,7 @@ bool ConfigStore::load(Config& out) {
     out.pc_poll_ms    = doc["pc_poll_ms"]    | 2000;
 
     strlcpy(out.api_token, doc["api_token"] | "", sizeof(out.api_token));
+    strlcpy(out.ota_pass,  doc["ota_pass"]  | "", sizeof(out.ota_pass));
 
     out.valid = true;
     return true;
@@ -66,6 +67,7 @@ bool ConfigStore::save(const Config& cfg) {
     doc["pc_agent_port"]      = cfg.pc_agent_port;
     doc["pc_poll_ms"]         = cfg.pc_poll_ms;
     doc["api_token"]          = cfg.api_token;
+    doc["ota_pass"]           = cfg.ota_pass;
 
     File f = LittleFS.open(PATH, "w");
     if (!f) return false;

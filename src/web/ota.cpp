@@ -2,7 +2,15 @@
 #include <Update.h>
 #include <Arduino.h>
 
-static bool s_shouldReboot = false;
+static bool    s_shouldReboot = false;
+static Config* s_cfg          = nullptr;
+static bool    s_otaDenied    = false;   // upload sin auth: ignorar chunks
+
+// true si OTA esta protegido y la request NO trae credenciales validas
+static bool otaUnauthorized(AsyncWebServerRequest* req) {
+    if (!s_cfg || s_cfg->ota_pass[0] == '\0') return false;   // sin clave: abierto
+    return !req->authenticate("admin", s_cfg->ota_pass);
+}
 
 static const char UPDATE_HTML[] PROGMEM = R"rawliteral(
 <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
@@ -47,14 +55,18 @@ static const char UPDATE_HTML[] PROGMEM = R"rawliteral(
 </script></div></body></html>
 )rawliteral";
 
-void Ota::registerRoutes(AsyncWebServer& srv) {
+void Ota::registerRoutes(AsyncWebServer& srv, Config& cfg) {
+    s_cfg = &cfg;
+
     srv.on("/update", HTTP_GET, [](AsyncWebServerRequest* req) {
+        if (otaUnauthorized(req)) { req->requestAuthentication(); return; }
         req->send(200, "text/html", UPDATE_HTML);
     });
 
     srv.on("/update", HTTP_POST,
         // respuesta final (tras recibir todo el archivo)
         [](AsyncWebServerRequest* req) {
+            if (otaUnauthorized(req)) { req->requestAuthentication(); return; }
             bool ok = !Update.hasError();
             AsyncWebServerResponse* res = req->beginResponse(
                 200, "text/plain", ok ? "OK — reiniciando..." : "FALLO en OTA");
@@ -66,11 +78,19 @@ void Ota::registerRoutes(AsyncWebServer& srv) {
         [](AsyncWebServerRequest* req, String filename, size_t index,
            uint8_t* data, size_t len, bool final) {
             if (index == 0) {
+                // Gate de auth ANTES de escribir flash. Las cabeceras (incl.
+                // Authorization) ya estan parseadas en el primer chunk.
+                s_otaDenied = otaUnauthorized(req);
+                if (s_otaDenied) {
+                    Serial.println("[ota] rechazado: sin auth");
+                    return;
+                }
                 Serial.printf("[ota] inicio: %s\n", filename.c_str());
                 if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
                     Update.printError(Serial);
                 }
             }
+            if (s_otaDenied) return;   // no escribir nada de una subida no autorizada
             if (Update.write(data, len) != len) {
                 Update.printError(Serial);
             }
