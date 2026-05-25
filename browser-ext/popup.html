@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+  body{width:260px;margin:0;background:#0b0f17;color:#e6edf3;font-family:system-ui,sans-serif;padding:14px}
+  h1{color:#7af;font-size:15px;margin:0 0 10px}
+  label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#8b97a8;margin:10px 0 4px}
+  input{width:100%;box-sizing:border-box;background:#131a26;border:1px solid #243044;color:#e6edf3;border-radius:7px;padding:8px;font-size:13px}
+  button{cursor:pointer;background:#7af;color:#001;border:0;border-radius:7px;padding:9px;font-weight:700;font-size:13px;width:100%;margin-top:10px}
+  .ghost{background:transparent;border:1px solid #243044;color:#8b97a8}
+  .count{font-size:30px;font-weight:800;text-align:center;margin:8px 0 2px}
+  .mut{color:#8b97a8;font-size:12px;text-align:center}
+  #msg{font-size:12px;text-align:center;margin-top:8px;min-height:16px}
+</style>
+</head>
+<body>
+  <h1>Nerd Dashboard</h1>
+  <div class="count" id="count">0</div>
+  <div class="mut">mensajes en ventana 5h <span id="pending"></span></div>
+
+  <label>IP del ESP</label>
+  <input id="ip" placeholder="192.168.0.126">
+  <button onclick="save()">Guardar IP</button>
+  <button class="ghost" onclick="test()">Probar conexión</button>
+  <button class="ghost" onclick="reset()">Reiniciar contador</button>
+  <div id="msg"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>

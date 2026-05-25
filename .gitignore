@@ -1,0 +1,45 @@
+# ── PlatformIO / build ──────────────────────────────────────────
+.pio/
+.pioenvs/
+.piolibdeps/
+*.bin
+*.elf
+*.hex
+*.map
+
+# ── Secretos / llaves — NUNCA subir ─────────────────────────────
+src/secrets.h
+secrets.h
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.crt
+token.txt
+**/credentials.json
+.credentials.json
+config.json          # config local del firmware (wifi/keys); el .example sí va
+
+# ── Datos runtime del agente (viven en ~/.nerddashboard) ────────
+.nerddashboard/
+pc-agent/*.json      # tasks/pomodoro/monitors locales si alguien los copia aquí
+
+# ── Python ───────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+
+# ── Editores / OS ────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ── Logs ─────────────────────────────────────────────────────────
+*.log

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nerd Dashboard</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b12; --panel:#0d1320; --panel2:#111a2b; --bd:#1c2738; --bd2:#26354b;
+  --fg:#d4deec; --mut:#6b7a90; --dim:#43505f;
+  --teal:#4fd1c5; --cyan:#38bdf8; --amber:#f5c542; --red:#ff5d6c; --green:#54d98c;
+  --glow:0 0 0 1px var(--bd), 0 8px 30px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:'JetBrains Mono',ui-monospace,monospace; font-size:14px; line-height:1.5;
+  background-image:
+    radial-gradient(900px 500px at 80% -10%, rgba(79,209,197,.10), transparent 60%),
+    radial-gradient(700px 400px at 0% 0%, rgba(56,189,248,.07), transparent 55%),
+    linear-gradient(transparent 0 31px, rgba(255,255,255,.012) 31px 32px);
+  background-size:auto,auto,32px 32px;
+  min-height:100vh; padding:22px 16px 40px;
+}
+.wrap{max-width:760px;margin:0 auto}
+.dsp{font-family:'Chakra Petch',sans-serif}
+
+/* entrada escalonada */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes sweep{to{background-position:200% 0}}
+.rise{opacity:0;animation:fadeUp .55s cubic-bezier(.2,.7,.2,1) forwards}
+
+/* header */
+header{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.logo{width:42px;height:42px;flex:0 0 auto;filter:drop-shadow(0 0 8px rgba(79,209,197,.4))}
+h1{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:24px;letter-spacing:3px;margin:0;
+   background:linear-gradient(90deg,#fff,var(--teal),var(--cyan),#fff);background-size:200% auto;
+   -webkit-background-clip:text;background-clip:text;color:transparent;animation:sweep 6s linear infinite}
+.tag{color:var(--mut);font-size:12px;letter-spacing:1px;margin-top:2px}
+header .right{margin-left:auto;text-align:right;color:var(--mut);font-size:12px}
+header .right b{color:var(--teal);font-weight:500}
+
+/* paneles */
+.panel{background:linear-gradient(180deg,var(--panel),var(--bg));border:1px solid var(--bd);
+  border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.panel:hover{border-color:var(--bd2)}
+.ph{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.ph .k{font-family:'Chakra Petch',sans-serif;font-size:12px;letter-spacing:3px;color:var(--mut);text-transform:uppercase}
+.ph .line{flex:1;height:1px;background:linear-gradient(90deg,var(--bd2),transparent)}
+.pill{font-size:11px;letter-spacing:1px;padding:3px 10px;border-radius:20px;background:#16202f;color:var(--mut);
+  text-transform:uppercase;font-weight:700}
+
+/* claude status */
+.cstat{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--mut);position:relative;flex:0 0 auto}
+.dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;background:inherit;opacity:.25;animation:pulse 2s ease-in-out infinite}
+.cdesc{font-family:'Chakra Petch',sans-serif;font-size:18px;font-weight:600}
+.rows .row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #131c2b;font-size:13px}
+.rows .row:last-child{border-bottom:0}
+.rows .row .v{color:var(--mut)}
+.tag-ok{color:var(--green)} .tag-warn{color:var(--amber)} .tag-bad{color:var(--red)}
+
+/* meters */
+.meter{margin:12px 0}
+.meter .lab{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+.meter .lab .n{color:var(--fg);letter-spacing:1px}
+.meter .lab .p{font-family:'Chakra Petch',sans-serif;font-weight:700}
+.meter .lab .rs{color:var(--dim);font-size:11px}
+.track{height:10px;border-radius:6px;background:#101a29;overflow:hidden;position:relative}
+.fill{height:100%;width:0;border-radius:6px;transition:width .7s cubic-bezier(.2,.7,.2,1);
+  background:linear-gradient(90deg,var(--teal),var(--cyan));box-shadow:0 0 12px rgba(79,209,197,.5)}
+.fill.warn{background:linear-gradient(90deg,#f5c542,#f59e0b);box-shadow:0 0 12px rgba(245,197,66,.5)}
+.fill.bad{background:linear-gradient(90deg,#ff5d6c,#ef4444);box-shadow:0 0 12px rgba(255,93,108,.5)}
+.split{display:flex;gap:18px;align-items:baseline;margin-top:14px;padding-top:14px;border-top:1px solid #131c2b;flex-wrap:wrap}
+.kpi{font-family:'Chakra Petch',sans-serif;font-size:22px;font-weight:700}
+.kpi small{font-family:'JetBrains Mono';font-size:12px;color:var(--mut);font-weight:400}
+
+/* pc ring */
+.pcgrid{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.ring{--p:0;--c:var(--teal);width:118px;height:118px;border-radius:50%;flex:0 0 auto;
+  background:conic-gradient(var(--c) calc(var(--p)*1%), #131f30 0);
+  display:grid;place-items:center;transition:--p .7s ease;position:relative}
+.ring::before{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--panel)}
+.ring .c{position:relative;text-align:center}
+.ring .c b{font-family:'Chakra Petch',sans-serif;font-size:28px;display:block}
+.ring .c span{font-size:11px;color:var(--mut);letter-spacing:2px}
+.pcbars{flex:1;min-width:180px}
+.pcfoot{margin-top:14px;color:var(--mut);font-size:12px;display:flex;gap:14px;flex-wrap:wrap}
+.pcfoot b{color:var(--fg);font-weight:500}
+
+/* forms */
+details{border-top:1px solid #131c2b;margin-top:12px;padding-top:8px}
+summary{cursor:pointer;color:var(--mut);font-size:12px;letter-spacing:1px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--teal)}
+details[open] summary::before{content:"▾ "}
+label{display:block;font-size:11px;letter-spacing:1px;color:var(--mut);margin:12px 0 5px;text-transform:uppercase}
+input{width:100%;background:#0a121e;border:1px solid var(--bd);color:var(--fg);border-radius:8px;
+  padding:10px;font-family:'JetBrains Mono';font-size:13px}
+input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(79,209,197,.12)}
+.btn{width:100%;margin-top:14px;background:linear-gradient(90deg,var(--teal),var(--cyan));color:#04141a;
+  border:0;border-radius:9px;padding:12px;font-family:'Chakra Petch',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;border:1px solid var(--bd2);color:var(--mut)}
+.msg{text-align:center;font-size:12px;margin-top:10px;min-height:15px}
+.offline{text-align:center;color:var(--mut);padding:18px 0;font-size:13px}
+a{color:var(--teal);text-decoration:none}
+.foot{text-align:center;color:var(--dim);font-size:11px;letter-spacing:1px;margin-top:8px}
+.foot .dsp{color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="rise" style="animation-delay:.0s">
+    <svg class="logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0d1320" stroke="#4fd1c5" stroke-width="1"/><rect x="6" y="8" width="20" height="13" rx="2" fill="none" stroke="#38bdf8" stroke-width="1.5"/><circle cx="11" cy="14.5" r="2" fill="#54d98c"/><rect x="15" y="13" width="8" height="2" rx="1" fill="#4fd1c5"/><rect x="15" y="16.5" width="6" height="2" rx="1" fill="#6b7a90"/><rect x="12" y="24" width="8" height="2" rx="1" fill="#26354b"/></svg>
+    <div>
+      <h1>NERD DASHBOARD</h1>
+      <div class="tag" id="hdrtag">ESP32-2432S028R</div>
+    </div>
+    <div class="right">
+      <div id="hdrip">--</div>
+      <div>up <b id="hdrup">--</b></div>
+    </div>
+  </header>
+
+  <!-- CLAUDE -->
+  <div class="panel rise" style="animation-delay:.08s">
+    <div class="ph"><span class="k">Claude · Servicios</span><span class="line"></span><span class="pill" id="cage">--</span></div>
+    <div class="cstat"><span class="dot" id="cdot"></span><span class="cdesc" id="cdesc">conectando...</span></div>
+    <div class="rows" id="comps"></div>
+  </div>
+
+  <!-- TOKENS -->
+  <div class="panel rise" style="animation-delay:.16s">
+    <div class="ph"><span class="k">Uso · Límites</span><span class="line"></span><span class="pill" id="tstat">OFFLINE</span></div>
+
+    <div class="meter">
+      <div class="lab"><span class="n">VENTANA 5H</span><span><span class="p" id="r5p">--</span> <span class="rs" id="r5r"></span></span></div>
+      <div class="track"><div class="fill" id="r5b"></div></div>
+    </div>
+    <div class="meter">
+      <div class="lab"><span class="n">SEMANAL</span><span><span class="p" id="r7p">--</span> <span class="rs" id="r7r"></span></span></div>
+      <div class="track"><div class="fill" id="r7b"></div></div>
+    </div>
+
+  </div>
+
+  <!-- PC -->
+  <div class="panel rise" style="animation-delay:.24s">
+    <div class="ph"><span class="k" id="pck">PC</span><span class="line"></span><span class="pill" id="pcstat">--</span></div>
+    <div id="pcoffline" class="offline" style="display:none">Agente PC offline · correr <code>pc-agent/agent.py</code></div>
+    <div id="pcbody" class="pcgrid">
+      <div class="ring" id="cpuring"><div class="c"><b id="cpuv">--</b><span>CPU</span></div></div>
+      <div class="pcbars">
+        <div class="meter"><div class="lab"><span class="n">RAM</span><span class="p" id="ramp">--</span></div><div class="track"><div class="fill" id="ramb"></div></div></div>
+        <div class="meter" id="gpumeter"><div class="lab"><span class="n" id="gpuname">GPU</span><span class="p" id="gpup">--</span></div><div class="track"><div class="fill" id="gpub"></div></div></div>
+        <div class="meter"><div class="lab"><span class="n">DISK</span><span class="p" id="diskp">--</span></div><div class="track"><div class="fill" id="diskb"></div></div></div>
+      </div>
+    </div>
+    <div class="pcfoot" id="pcfoot"></div>
+  </div>
+
+  <!-- POMODORO -->
+  <div class="panel rise" style="animation-delay:.32s">
+    <div class="ph"><span class="k">Pomodoro</span><span class="line"></span><span class="pill" id="pomomode">--</span></div>
+    <div style="text-align:center">
+      <div class="dsp" id="pomotimer" style="font-size:56px;font-weight:700;letter-spacing:3px;line-height:1.1">25:00</div>
+      <div style="color:var(--mut);font-size:12px" id="pomodone">hoy 0 completados</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn" id="pomoplay" onclick="pomoPlay()" style="flex:1">Iniciar</button>
+      <button class="btn ghost" onclick="pomoReset()" style="flex:1">Reset</button>
+    </div>
+    <details><summary>Duraciones (min)</summary>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1"><label>Trabajo</label><input id="pwork" type="number" value="25"></div>
+        <div style="flex:1"><label>Corto</label><input id="pshort" type="number" value="5"></div>
+        <div style="flex:1"><label>Largo</label><input id="plong" type="number" value="15"></div>
+      </div>
+      <button class="btn ghost" onclick="pomoCfg()">Guardar duraciones</button>
+    </details>
+  </div>
+
+  <!-- TAREAS -->
+  <div class="panel rise" style="animation-delay:.40s">
+    <div class="ph"><span class="k">Tareas</span><span class="line"></span><span class="pill" id="taskcount">0</span></div>
+    <div style="display:flex;gap:8px">
+      <input id="newtask" placeholder="Nueva tarea…" style="flex:1" onkeydown="if(event.key==='Enter')addTask()">
+      <select id="newprio" style="width:96px;background:#0a121e;border:1px solid var(--bd);color:var(--fg);border-radius:8px;font-family:'JetBrains Mono'">
+        <option value="1">Media</option><option value="2">Alta</option><option value="0">Baja</option></select>
+    </div>
+    <button class="btn" onclick="addTask()">Agregar tarea</button>
+    <div id="tasklist" style="margin-top:14px"></div>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="panel rise" style="animation-delay:.48s">
+    <div class="ph"><span class="k">Configuración</span><span class="line"></span></div>
+    <label>IP del PC (agente)</label>
+    <div style="display:flex;gap:8px"><input id="pchost" placeholder="192.168.0.107" style="flex:1"><input id="pcport" type="number" value="8765" style="width:90px"></div>
+    <button class="btn" onclick="savePc()">Guardar agente PC</button>
+    <p class="msg" id="pcmsg"></p>
+    <details><summary>Actualizar firmware (OTA)</summary>
+      <p style="color:var(--mut);font-size:12px;margin:10px 0">Subir <code>firmware.bin</code> sin cable.</p>
+      <a class="btn ghost" href="/update" style="display:block;text-align:center;text-decoration:none">Ir a /update →</a>
+    </details>
+  </div>
+
+  <div class="foot">NERD DASHBOARD <span class="dsp">v<span id="fw">?</span></span></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const j=(u,o)=>fetch(u,o).then(r=>r.json());
+const COLORS={none:'#54d98c',minor:'#f5c542',maintenance:'#38bdf8',major:'#f59e0b',critical:'#ff5d6c',unknown:'#6b7a90'};
+const CS={operational:'OK',degraded_performance:'Degradado',partial_outage:'Parcial',major_outage:'Caído',under_maintenance:'Mantenim.'};
+function cls(p){return p>=90?'bad':p>=70?'warn':''}
+function fmtTok(v){return v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?Math.round(v/1e3)+'K':''+v}
+function fmtRate(b){return b>=1e6?(b/1e6).toFixed(1)+'M':b>=1e3?Math.round(b/1e3)+'K':b+''}
+function setFill(el,p){el.style.width=Math.min(Math.max(p,0),100)+'%';el.className='fill '+cls(p)}
+
+async function tickClaude(){
+  try{
+    const c=await j('/api/claude/status');
+    $('cdot').style.background=COLORS[c.indicator]||COLORS.unknown;
+    $('cdesc').textContent=c.description;
+    $('cage').textContent=c.age_s>=0?`hace ${c.age_s}s`:'--';
+    $('comps').innerHTML=(c.components||[]).map(x=>{
+      const t=CS[x.status]||x.status, k=x.status=='operational'?'tag-ok':x.status=='major_outage'||x.status=='partial_outage'?'tag-bad':'tag-warn';
+      return `<div class="row"><span>${x.name}</span><span class="v ${k}">${t}</span></div>`;
+    }).join('');
+  }catch(e){$('cdesc').textContent='sin conexión';}
+}
+async function tickUsage(){
+  try{
+    const u=await j('/api/claude/usage');
+    const st=$('tstat');
+    if(!u.rate_ok){
+      $('r5p').textContent='offline';$('r7p').textContent='offline';
+      setFill($('r5b'),0);setFill($('r7b'),0);$('r5r').textContent='';$('r7r').textContent='';
+      st.textContent='AGENTE OFF';st.style.color='var(--mut)';
+    }else{
+      $('r5p').textContent=u.rate_5h_pct+'% usado';setFill($('r5b'),u.rate_5h_pct);
+      const h=Math.floor(u.rate_5h_reset_min/60),m=u.rate_5h_reset_min%60;$('r5r').textContent=`queda ${100-u.rate_5h_pct}% · reset en ${h}h ${String(m).padStart(2,'0')}m`;
+      $('r7p').textContent=u.rate_7d_pct+'% usado';setFill($('r7b'),u.rate_7d_pct);
+      const d=Math.floor(u.rate_7d_reset_min/1440),hh=Math.floor((u.rate_7d_reset_min%1440)/60);$('r7r').textContent=`queda ${100-u.rate_7d_pct}% · reset en ${d}d ${hh}h`;
+      const S={allowed:['OK','var(--green)'],allowed_warning:['ALERTA','var(--amber)']}[u.rate_status]||['BLOQUEADO','var(--red)'];
+      if(u.rate_status&&u.rate_status.startsWith('allowed')){const k=u.rate_status=='allowed'?['OK','var(--green)']:['ALERTA','var(--amber)'];st.textContent=k[0];st.style.color=k[1];}
+      else{st.textContent=(u.rate_status||'?').toUpperCase();st.style.color='var(--red)';}
+    }
+  }catch(e){}
+}
+async function tickPc(){
+  try{
+    const m=await j('/api/pc/last');
+    const stat=$('pcstat');
+    if(!m.online){
+      $('pcbody').style.display='none';$('pcfoot').style.display='none';$('pcoffline').style.display='block';
+      $('pck').textContent='PC';stat.textContent='OFFLINE';stat.style.color='var(--mut)';return;
+    }
+    $('pcbody').style.display='flex';$('pcfoot').style.display='flex';$('pcoffline').style.display='none';
+    $('pck').textContent='PC · '+m.host;stat.textContent=m.os;stat.style.color='var(--teal)';
+    const ring=$('cpuring');ring.style.setProperty('--p',m.cpu);
+    ring.style.setProperty('--c',m.cpu>=90?'var(--red)':m.cpu>=70?'var(--amber)':'var(--teal)');
+    $('cpuv').textContent=m.cpu+'%';
+    $('ramp').textContent=m.mem_total>0?`${m.ram}%  (${m.mem_used}/${m.mem_total} GB)`:m.ram+'%';setFill($('ramb'),m.ram);
+    if(m.gpu>=0){$('gpumeter').style.display='';$('gpup').textContent=m.gpu+'%';$('gpuname').textContent=m.gpu_name?('GPU · '+m.gpu_name):'GPU';setFill($('gpub'),m.gpu);}
+    else{$('gpumeter').style.display='none';}
+    if(m.disk>=0){$('diskp').textContent=m.disk+'%';setFill($('diskb'),m.disk);}else{$('diskp').textContent='n/a';setFill($('diskb'),0);}
+    let f=[`<span>NET <b>↓${fmtRate(m.net_down)}/s ↑${fmtRate(m.net_up)}/s</b></span>`];
+    if(m.cpu_count>0)f.push(`<span><b>${m.cpu_count}</b> núcleos${m.cpu_freq>0?` @ <b>${(m.cpu_freq/1000).toFixed(1)}GHz</b>`:''}</span>`);
+    if(m.pc_uptime_s>0){const d=Math.floor(m.pc_uptime_s/86400),h=Math.floor((m.pc_uptime_s%86400)/3600);f.push(`<span>up <b>${d}d ${h}h</b></span>`);}
+    if(m.cpu_temp>=0)f.push(`<span>CPU <b>${m.cpu_temp}°C</b></span>`);
+    if(m.gpu_temp>=0)f.push(`<span>GPU <b>${m.gpu_temp}°C</b></span>`);
+    if(m.batt>=0)f.push(`<span>Bat <b>${m.batt}%${m.batt_plugged?'⚡':''}</b></span>`);
+    $('pcfoot').innerHTML=f.join('');
+  }catch(e){}
+}
+async function tickDev(){
+  try{
+    const s=await j('/api/status');
+    $('fw').textContent=s.fw;$('hdrip').textContent=s.ip;
+    const up=s.uptime_s,h=Math.floor(up/3600),m=Math.floor((up%3600)/60);$('hdrup').textContent=`${h}h${String(m).padStart(2,'0')}`;
+    if(s.pc_agent_host!==undefined&&!$('pchost').value){$('pchost').value=s.pc_agent_host;$('pcport').value=s.pc_agent_port;}
+  }catch(e){}
+}
+async function savePc(){
+  const body={agent_host:$('pchost').value.trim(),agent_port:parseInt($('pcport').value)||8765};
+  const m=$('pcmsg');
+  try{const r=await j('/api/config/pc',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    m.style.color='var(--green)';m.textContent=r.ok?`✓ ${r.agent_host}:${r.agent_port}`:'Error';tickPc();tickUsage();
+  }catch(e){m.style.color='var(--red)';m.textContent='Error: '+e}
+}
+// ── Pomodoro ──
+const PNAME={idle:'Listo',work:'Trabajo',short_break:'Descanso',long_break:'Descanso largo'};
+async function tickPomo(){
+  try{const p=await j('/api/pomodoro');
+    const m=Math.floor(p.remaining_s/60),s=p.remaining_s%60;
+    $('pomotimer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    $('pomomode').textContent=(PNAME[p.mode]||p.mode)+(p.paused?' · pausa':'');
+    $('pomodone').textContent=`hoy ${p.completed_today} completados`;
+    $('pomoplay').textContent=p.mode=='idle'?'Iniciar':(p.paused?'Seguir':'Pausar');
+    if(p.config&&!$('pwork').dataset.set){$('pwork').value=Math.round(p.config.work_s/60);$('pshort').value=Math.round(p.config.short_s/60);$('plong').value=Math.round(p.config.long_s/60);$('pwork').dataset.set=1;}
+  }catch(e){}
+}
+async function pomoPlay(){
+  const p=await j('/api/pomodoro');
+  if(p.mode=='idle')await fetch('/api/pomodoro/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'work'})});
+  else await fetch('/api/pomodoro/pause',{method:'POST'});
+  tickPomo();
+}
+async function pomoReset(){await fetch('/api/pomodoro/reset',{method:'POST'});tickPomo();}
+async function pomoCfg(){
+  await fetch('/api/pomodoro/config',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({work_s:(+$('pwork').value||25)*60,short_s:(+$('pshort').value||5)*60,long_s:(+$('plong').value||15)*60})});
+  tickPomo();
+}
+// ── Tareas ──
+const PRIO={0:'#6b7a90',1:'#38bdf8',2:'#ff5d6c'};
+function esc(s){return (s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}
+async function loadTasks(){
+  try{const arr=await j('/api/tasks');
+    $('taskcount').textContent=arr.filter(t=>!t.done).length+' pend';
+    arr.sort((a,b)=>(a.done-b.done)||(b.priority-a.priority));
+    $('tasklist').innerHTML=arr.map(t=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #131c2b">
+      <span onclick="toggleTask('${t.id}',${!t.done})" title="completar" style="cursor:pointer;width:18px;height:18px;border-radius:5px;border:2px solid ${t.done?'var(--green)':'var(--bd2)'};background:${t.done?'var(--green)':'transparent'};flex:0 0 auto;display:grid;place-items:center;color:#04141a;font-size:11px">${t.done?'✓':''}</span>
+      <span style="width:8px;height:8px;border-radius:50%;background:${PRIO[t.priority]};flex:0 0 auto"></span>
+      <span style="flex:1;${t.done?'text-decoration:line-through;color:var(--mut)':''}">${esc(t.title)}</span>
+      <span onclick="delTask('${t.id}')" title="borrar" style="cursor:pointer;color:var(--dim)">✕</span></div>`).join('')||'<div class="offline">sin tareas</div>';
+  }catch(e){}
+}
+async function addTask(){
+  const t=$('newtask').value.trim();if(!t)return;
+  await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,priority:+$('newprio').value})});
+  $('newtask').value='';loadTasks();
+}
+async function toggleTask(id,done){await fetch('/api/tasks',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,done})});loadTasks();}
+async function delTask(id){await fetch('/api/tasks?id='+encodeURIComponent(id),{method:'DELETE'});loadTasks();}
+
+function all(){tickClaude();tickUsage();tickPc();tickDev();loadTasks();}
+all();setInterval(all,2500);
+setInterval(tickPomo,1000);tickPomo();
+</script>
+</body>
+</html>

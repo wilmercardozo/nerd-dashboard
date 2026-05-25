@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Nerd Dashboard — Claude counter",
+  "version": "0.2.0",
+  "description": "Cuenta mensajes enviados en claude.ai y los reporta al Nerd Dashboard (ESP32).",
+  "permissions": ["storage", "alarms"],
+  "host_permissions": ["https://claude.ai/*", "http://*/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://claude.ai/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Nerd Dashboard"
+  }
+}

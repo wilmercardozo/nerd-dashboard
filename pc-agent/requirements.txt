@@ -1,0 +1,5 @@
+# Agente PC — Nerd Dashboard
+psutil>=5.9
+# GPU NVIDIA (provee el modulo 'pynvml'). Si no hay GPU NVIDIA, se ignora.
+nvidia-ml-py>=12
+# (urllib, json, http.server son de la stdlib — no requieren instalacion)
