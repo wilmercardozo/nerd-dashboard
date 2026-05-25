@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flashear Nerd Dashboard</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      font: 16px/1.6 system-ui, sans-serif; background: #0d1117; color: #e6edf3;
+      padding: 24px;
+    }
+    .card {
+      max-width: 560px; text-align: center; background: #161b22;
+      border: 1px solid #30363d; border-radius: 16px; padding: 40px 32px;
+    }
+    h1 { margin: 0 0 4px; font-size: 28px; }
+    .sub { color: #8b949e; margin: 0 0 28px; }
+    esp-web-install-button { --esp-tools-button-color: #fff; }
+    button.flash {
+      background: #f0883e; color: #1a1a1a; border: 0; border-radius: 10px;
+      padding: 14px 28px; font-size: 17px; font-weight: 600; cursor: pointer;
+    }
+    .steps { text-align: left; margin: 28px 0 0; color: #8b949e; font-size: 14px; }
+    .note { margin-top: 24px; font-size: 13px; color: #6e7681; }
+    a { color: #58a6ff; }
+    .unsupported { color: #f85149; display: none; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>⚡ Nerd Dashboard</h1>
+    <p class="sub">Flashea tu placa ESP32-2432S028R (CYD) desde el navegador. Sin PlatformIO.</p>
+
+    <esp-web-install-button manifest="./manifest.json">
+      <button class="flash" slot="activate">Conectar y flashear</button>
+      <span slot="unsupported" class="unsupported">
+        Tu navegador no soporta Web Serial. Usa <b>Chrome</b> o <b>Edge</b> de escritorio.
+      </span>
+      <span slot="not-allowed" class="unsupported">
+        Debe servirse por HTTPS (o localhost).
+      </span>
+    </esp-web-install-button>
+
+    <ol class="steps">
+      <li>Conecta la placa por USB.</li>
+      <li>Pulsa <b>Conectar y flashear</b> y elige el puerto serie de la placa.</li>
+      <li>Espera a que termine; la placa reinicia sola.</li>
+      <li>Primer arranque → red WiFi <b>NerdDashboard-Setup</b> → abre <code>http://192.168.4.1</code> y configura WiFi + IP del agente.</li>
+    </ol>
+
+    <p class="note">
+      Solo Chrome/Edge de escritorio (Web Serial). Tras flashear, instala el
+      <a href="https://github.com/wilmercardozo/nerd-dashboard#instalaci%C3%B3n">agente PC</a>.
+    </p>
+  </div>
+
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+</body>
+</html>

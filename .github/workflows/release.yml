@@ -1,0 +1,94 @@
+name: Release
+
+# Dispara al pushear un tag de version, ej:  git tag v0.4.0 && git push origin v0.4.0
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write      # crear release + subir assets
+  pages: write         # publicar el flasher web (GitHub Pages)
+  id-token: write       # requerido por deploy-pages
+
+jobs:
+  build:
+    name: Build, release assets y artefacto Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PlatformIO + esptool
+        run: pip install platformio "esptool>=4.7,<5"
+
+      - name: Build firmware
+        run: pio run -e nerd-dashboard
+
+      - name: Collect + merge binaries
+        run: |
+          set -euo pipefail
+          BUILD=.pio/build/nerd-dashboard
+          BOOT_APP0=$(find ~/.platformio/packages/framework-arduinoespressif32 -name boot_app0.bin | head -1)
+          test -n "$BOOT_APP0" || { echo "boot_app0.bin no encontrado"; exit 1; }
+          mkdir -p dist site
+          cp "$BUILD/firmware.bin"   dist/firmware.bin
+          cp "$BUILD/bootloader.bin" dist/bootloader.bin
+          cp "$BUILD/partitions.bin" dist/partitions.bin
+          cp "$BOOT_APP0"            dist/boot_app0.bin
+          # Imagen unica flasheable a offset 0x0 (offsets segun partitions_custom.csv)
+          FACTORY=dist/nerd-dashboard-${GITHUB_REF_NAME}.factory.bin
+          python -m esptool --chip esp32 merge_bin \
+            --flash_mode dio --flash_freq 40m --flash_size 4MB \
+            -o "$FACTORY" \
+            0x1000  "$BUILD/bootloader.bin" \
+            0x8000  "$BUILD/partitions.bin" \
+            0xe000  "$BOOT_APP0" \
+            0x10000 "$BUILD/firmware.bin"
+          # Sitio del flasher web (ESP Web Tools): pagina + manifest + bin con nombre estable
+          cp web-flasher/index.html site/index.html
+          cp "$FACTORY" site/firmware.factory.bin
+          cat > site/manifest.json <<JSON
+          {
+            "name": "Nerd Dashboard",
+            "version": "${GITHUB_REF_NAME}",
+            "new_install_prompt_erase": true,
+            "builds": [
+              {
+                "chipFamily": "ESP32",
+                "parts": [ { "path": "firmware.factory.bin", "offset": 0 } ]
+              }
+            ]
+          }
+          JSON
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/nerd-dashboard-*.factory.bin
+            dist/firmware.bin
+            dist/bootloader.bin
+            dist/partitions.bin
+            dist/boot_app0.bin
+
+      - name: Upload Pages artifact (flasher web)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy-pages:
+    name: Deploy flasher web a GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    # El release ya subio los binarios en el job anterior; si Pages no esta
+    # habilitado (Settings -> Pages -> Source: GitHub Actions) solo falla esto.
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

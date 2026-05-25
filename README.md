@@ -93,6 +93,13 @@ bash pc-agent/install-macos.sh
 
 ### 2. Firmware (ESP32)
 
+**Opción A — flashear desde el navegador (sin toolchain):** abre
+**[el flasher web](https://wilmercardozo.github.io/nerd-dashboard/)** en Chrome/Edge,
+conecta la placa por USB y dale a *Conectar y flashear*. (Disponible tras el primer
+[release](https://github.com/wilmercardozo/nerd-dashboard/releases).)
+
+**Opción B — PlatformIO (desarrollo):**
+
 ```bash
 pio run -e nerd-dashboard -t upload     # compila + flashea por USB
 pio device monitor -b 115200            # logs (opcional)
