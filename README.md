@@ -1,5 +1,8 @@
 # Nerd Dashboard
 
+[![CI](https://github.com/wilmercardozo/nerd-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/wilmercardozo/nerd-dashboard/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Dashboard de escritorio sobre una placa **Cheap Yellow Display (ESP32-2432S028R)**
 + un **agente en tu PC**. Monitorea servicios (estilo uptime-kuma), tu uso de
 Claude, las métricas de tu PC, y gestiona tareas con Pomodoro.
@@ -43,6 +46,18 @@ El ESP32 es débil para ser un servidor web ocupado, así que la lógica vive en
 | **Tokens** | Uso real de Claude Pro/Max (ventana 5h + semanal), **sin admin key**. |
 | **PC** | CPU (anillo), RAM/GPU/Disco, red, temperaturas, batería, uptime. |
 | **Tareas** | Pomodoro (timer) + lista de tareas. Tap = seleccionar, long-press = terminar. |
+
+---
+
+## Capturas
+
+> Pendiente: agrega imágenes en [`docs/screenshots/`](docs/screenshots/) y se
+> referencian aquí. Ver la guía en esa carpeta (qué capturar y tamaños).
+
+<!-- Cuando existan las imágenes, descomenta:
+![Dispositivo](docs/screenshots/device.jpg)
+![Dashboard web](docs/screenshots/web-dashboard.png)
+-->
 
 ---
 
@@ -176,6 +191,20 @@ data/                     stub web del ESP (no se usa; web vive en el agente)
 - **Colores invertidos:** quitar `-DTFT_INVERSION_ON`.
 - **GPU n/a:** instala `pip install nvidia-ml-py` (solo NVIDIA).
 - **OTA:** `http://nerddashboard.local/update` (solo firmware; el agente no se flashea).
+
+---
+
+## Aviso
+
+Proyecto personal, **no afiliado a Anthropic**. La vista *Tokens* lee el token
+OAuth local de Claude Code en tu PC y consulta headers de rate-limit no
+documentados — es *best-effort* y puede dejar de funcionar si Anthropic cambia
+su API. Si falla, el resto del dashboard sigue operando. Úsalo bajo tu propia
+responsabilidad y respeta los términos de servicio de los servicios que monitorees.
+
+## Licencia
+
+[MIT](LICENSE) © 2026 Will
 
 ---
 

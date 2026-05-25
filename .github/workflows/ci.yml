@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  firmware:
+    name: Build firmware (ESP32 CYD)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio
+            .pio
+          key: ${{ runner.os }}-pio-${{ hashFiles('platformio.ini') }}
+          restore-keys: ${{ runner.os }}-pio-
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Build
+        run: pio run -e nerd-dashboard
+
+  agent:
+    name: Lint PC agent (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install deps
+        run: pip install -r pc-agent/requirements-dev.txt
+
+      - name: Syntax check
+        run: python -m py_compile pc-agent/agent.py pc-agent/store.py
+
+      - name: Tests
+        run: pytest -q
+        working-directory: pc-agent
